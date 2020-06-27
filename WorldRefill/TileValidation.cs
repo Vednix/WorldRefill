@@ -27,7 +27,7 @@ namespace WorldRefill
             TileID.IceBlock,
             TileID.Grass,
             TileID.CorruptGrass,
-            TileID.CrimsonGrass,
+            TileID.FleshGrass,
             TileID.HallowedGrass,
             TileID.CorruptIce,
             TileID.HallowedIce,
@@ -35,8 +35,6 @@ namespace WorldRefill
             TileID.Crimsand,
             TileID.Ebonsand,
             TileID.JungleGrass
-
-
         };
             bool violation = true;
 
@@ -47,14 +45,12 @@ namespace WorldRefill
             }//block stand check
 
             Parallel.For(Y, 0, (i) =>
-
             {
-
                 if (surfacetiles.Contains(Main.tile[X, i].type))
                 {
 
 
-                    if (Main.tile[X, i].active() && Main.tileSolidTop[Main.tile[X,i].type])
+                    if (Main.tile[X, i].active() && Main.tileSolidTop[Main.tile[X, i].type])
                     {
 
                         violation = false;
@@ -81,14 +77,10 @@ namespace WorldRefill
                 {
                     if (search == find)
                     {
-
                         return new List<string> { find };
-
                     }
                     if (find.ToLower().StartsWith(search)) found.Add(find);
-
                 }
-
             }
             return found;
         }
@@ -105,21 +97,11 @@ namespace WorldRefill
                             481,
                             482,
                             483
-
-
                         };
             if (bannedtile.Contains(tile))
-            {
-
-
                 return true;
-            }
             else
-            {
-
-
                 return false;
-            }
 
 
         }
@@ -134,12 +116,8 @@ namespace WorldRefill
             {
                 for (yoffset = 0; yoffset < 3; yoffset++)
                 {
-
-
-                    if (Main.tile[X + xoffset, Y - yoffset].active()) return false;
-
-
-
+                    if (Main.tile[X + xoffset, Y - yoffset].active()) 
+                        return false;
                 }
             }
             return true;
@@ -162,10 +140,10 @@ namespace WorldRefill
                         {
                             0,
                             WallID.Jungle,
-                            WallID.Jungle1Echo,
-                            WallID.Jungle2Echo,
-                            WallID.Jungle3Echo,
-                            WallID.Jungle4Echo,
+                            //WallID.Jungle1Echo,
+                            //WallID.Jungle2Echo,
+                            //WallID.Jungle3Echo,
+                            //WallID.Jungle4Echo,
                             WallID.JungleUnsafe,
                             WallID.JungleUnsafe1,
                             WallID.JungleUnsafe2,
@@ -180,12 +158,8 @@ namespace WorldRefill
         {
             if (tile.type == TileID.Grass) return new List<ushort> { TileID.Plants, 21, 144 };
             else if (tile.type == TileID.CorruptGrass) return new List<ushort> { TileID.CorruptPlants, 8, 144 };
-            else if (tile.type == TileID.CrimsonGrass) return new List<ushort> { TileID.CrimsonPlants, 15, 270 };
+            else if (tile.type == TileID.FleshGrass) return new List<ushort> { TileID.FleshWeeds, 15, 270 };
             else if (tile.type == TileID.MushroomGrass) return new List<ushort> { TileID.MushroomPlants, 0, (ushort)tile.frameX };
-            else return null;
-            
-        }
-
-        
+            else return null;        }
     }
 }

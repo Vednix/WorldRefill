@@ -9,7 +9,6 @@ namespace WorldRefill
 
     public class Config
     {
-
         private static string savepath = "WorldRefill";
         
         public static Config config;
