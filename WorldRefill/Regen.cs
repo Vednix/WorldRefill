@@ -799,11 +799,7 @@ namespace WorldRefill
         public static Task AsyncGenerateDungeon(int posX, int posY)
         {
             WorldRefill.isTaskRunning = true;
-
             return Task.Run(() => WorldGen.MakeDungeon(posX, posY)).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
-
-
-
         }
         public static Task<bool> AsyncGeneratePyramid(int posX, int posY)
         {
