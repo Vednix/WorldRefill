@@ -13,13 +13,19 @@ using Terraria.ID;
 using TShockAPI;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using WorldRefill.Ext;
 
 namespace WorldRefill
 {
     static class Regen
     {
-
-
+        internal static MainExt MainExtStatic;
+        private static void TryInitWorldGen()
+        {
+            if (WorldGen.genRand == null)
+                WorldGen.genRand = new Random();
+        }
+        
         public static Task AsyncGenLifeCrystals(short amount, int maxtries = Config.GenerationMaxTries)
         {
             WorldRefill.isTaskRunning = true;
@@ -28,16 +34,14 @@ namespace WorldRefill
             {
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
-                    if (WorldGen.AddLifeCrystal(WorldGen.genRand.Next(1, Main.maxTilesX), WorldGen.genRand.Next((int)(Main.rockLayer), (int)(Main.maxTilesY + 100))))
+                    if (WorldGen.AddLifeCrystal(WorldGen.genRand.Next(1, Main.maxTilesX), WorldGen.genRand.Next((int)(Main.rockLayer), (int)(MainExt.UnderworldLayer + 100))))
                     {
 
                         realcount++;
                         //Determine if enough Objects have been generated
                         if (realcount == amount) break;
                     }
-
                 }
-
                 WorldRefill.realcount = realcount;
             }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
             }
@@ -47,6 +51,7 @@ namespace WorldRefill
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     int tryX = WorldGen.genRand.Next(1, Main.maxTilesX);
@@ -76,7 +81,7 @@ namespace WorldRefill
                         style = WorldGen.genRand.Next(28, 31);
                     if (wall == 187 || wall == 216)
                         style = WorldGen.genRand.Next(34, 37);
-                    if (tryY > Main.maxTilesY)
+                    if (tryY > MainExt.UnderworldLayer)
                         style = WorldGen.genRand.Next(13, 16);
 
 
@@ -100,10 +105,11 @@ namespace WorldRefill
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     int tryX = WorldGen.genRand.Next(50, Main.maxTilesX - 50);
-                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface + 20, Main.maxTilesY);
+                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface + 20, MainExt.UnderworldLayer);
 
                     if ((!Main.tile[tryX, tryY].active()) && ((Main.tile[tryX, tryY].wall == WallID.EbonstoneUnsafe) || (Main.tile[tryX, tryY].wall == WallID.CrimstoneUnsafe)))
                     {
@@ -130,6 +136,7 @@ namespace WorldRefill
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     int tryX = WorldGen.genRand.Next(1, Main.maxTilesX);
@@ -161,10 +168,11 @@ namespace WorldRefill
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     int tryX = WorldGen.genRand.Next(200, Main.maxTilesX - 200);
-                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface, Main.maxTilesY - 100);
+                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface, MainExt.UnderworldLayer - 100);
                     var type = WorldGen.genRand.Next(-1, 1);
                     if (Main.tile[tryX, tryY].wall == WallID.None && WorldGen.placeTrap(tryX, tryY, type))
                     {
@@ -184,52 +192,51 @@ namespace WorldRefill
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
-
                 {
                     int tryX = WorldGen.genRand.Next(250, Main.maxTilesX - 250);
-                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface, Main.maxTilesY);
-
+                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface, MainExt.UnderworldLayer);
 
                     if (WorldGen.mayanTrap(tryX, tryY))
                     {
                         realcount++;
                         if (realcount == amount) break;
                     }
-
-
-
-
-
                 }
                 WorldRefill.realcount = realcount;
             }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
         }
-        public static Task AsyncGenerateStatuetraps(short amount, int maxtries = Config.GenerationMaxTries)
-        {
-            WorldRefill.isTaskRunning = true;
-            int realcount = 0;
-            return Task.Run(() =>
-            {
-                for (int trycount = 0; trycount <= maxtries; trycount++)
+        #region This is crashing the server
+        //public static Task AsyncGenerateStatuetraps(short amount, int maxtries = Config.GenerationMaxTries)
+        //{
+        //    WorldRefill.isTaskRunning = true;
+        //    int realcount = 0;
+        //    return Task.Run(() =>
+        //    {
+        //        TryInitWorldGen();
+        //        for (int trycount = 0; trycount <= maxtries; trycount++)
 
-                {
-                    int tryX = WorldGen.genRand.Next(11, Main.maxTilesX - 11);
-                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface, Main.maxTilesY);
+        //        {
+        //            int tryX = WorldGen.genRand.Next(11, Main.maxTilesX - 11);
+        //            int tryY = WorldGen.genRand.Next((int)Main.worldSurface, MainExt.UnderworldLayer);
 
-                    WorldGen.PlaceStatueTrap(tryX, tryY);
+        //            if (Main.tile[tryX, tryY] != null && Main.tile[tryX, tryY].active())
+        //                WorldGen.PlaceStatueTrap(tryX, tryY);
 
-                    if ((int)Main.tile[tryX, tryY].type == TileID.Statues)
-                    {
+        //            if ((int)Main.tile[tryX, tryY].type == TileID.Statues)
+        //            {
 
-                        realcount++;
-                        if (realcount == amount) break;
-                    }
+        //                realcount++;
+        //                if (realcount == amount) break;
+        //            }
 
-                }
-                WorldRefill.realcount = realcount;
-            }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
-        }
+        //        }
+        //        WorldRefill.realcount = realcount;
+        //    }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
+        //}
+        #endregion
+        #region Not in 1.3.0
         //public static Task AsyncGenerateLavatraps(short amount, int maxtries = Config.GenerationMaxTries)
         //{
         //    WorldRefill.isTaskRunning = true;
@@ -283,29 +290,30 @@ namespace WorldRefill
         //        WorldRefill.realcount = realcount;
         //    }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
         //}
+        #endregion
         public static Task AsyncGenerateRandStatues(short amount, int maxtries = Config.GenerationMaxTries)
         {
             WorldRefill.isTaskRunning = true;
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     int tryX = WorldGen.genRand.Next(20, Main.maxTilesX - 20);
-                    int tryY = WorldGen.genRand.Next((int)Main.rockLayer, Main.maxTilesY);
+                    int tryY = WorldGen.genRand.Next((int)Main.rockLayer, MainExt.UnderworldLayer);
                     int tryType = WorldGen.genRand.Next(0, WorldGen.statueList.Count() - 1);
                     Point16 randstatue = WorldGen.statueList[tryType];
 
                     while (!TileValidation.StatueTileValidation(tryX, tryY))
                     {
                         tryY++;
-                        if (tryY >= Main.maxTilesY)
+                        if (tryY >= MainExt.UnderworldLayer)
                         {
                             break;
                         }
                     }
-
-                    if (tryY < Main.maxTilesY && (!TileValidation.isinNonNaturalStatuePlace(Main.tile[tryX, tryY + 1].type)))
+                    if (tryY < MainExt.UnderworldLayer && (!TileValidation.isinNonNaturalStatuePlace(Main.tile[tryX, tryY + 1].type)))
                     {
                         WorldGen.PlaceTile(tryX, tryY, randstatue.X, true, true, -1, randstatue.Y);
 
@@ -328,23 +336,24 @@ namespace WorldRefill
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
 
                     int tryX = WorldGen.genRand.Next(20, Main.maxTilesX - 20);
-                    int tryY = WorldGen.genRand.Next((int)Main.rockLayer, Main.maxTilesY);
+                    int tryY = WorldGen.genRand.Next((int)Main.rockLayer, MainExt.UnderworldLayer);
                     int tryType = WorldGen.genRand.Next(0, WorldGen.statueList.Count() - 1);
 
                     while (!TileValidation.StatueTileValidation(tryX, tryY))
                     {
                         tryY++;
-                        if (tryY >= Main.maxTilesY)
+                        if (tryY >= MainExt.UnderworldLayer)
                         {
                             break;
                         }
                     }
 
-                    if (tryY < Main.maxTilesY && (!TileValidation.isinNonNaturalStatuePlace(Main.tile[tryX, tryY + 1].type)))
+                    if (tryY < MainExt.UnderworldLayer && (!TileValidation.isinNonNaturalStatuePlace(Main.tile[tryX, tryY + 1].type)))
                     {
                         WorldGen.PlaceTile(tryX, tryY, tileid, true, true, -1, style);
 
@@ -374,8 +383,10 @@ namespace WorldRefill
 
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
+
                     int X = WorldGen.genRand.Next(100, Main.maxTilesX - 100);
 
                     double maxY;
@@ -409,7 +420,7 @@ namespace WorldRefill
                             maxSpread = 6;
                             break;
                         case 3:
-                            maxY = Main.maxTilesY;
+                            maxY = MainExt.UnderworldLayer;
                             minY = (3 / 2) * Main.rockLayer;
                             minFrequency = 2;
                             minSpread = 2;
@@ -418,7 +429,7 @@ namespace WorldRefill
                             break;
                         case 4:
                             maxY = Main.maxTilesY - 1;
-                            minY = Main.maxTilesY + 20;
+                            minY = MainExt.UnderworldLayer + 20;
                             minFrequency = 4;
                             minSpread = 4;
                             maxFrequency = 9;
@@ -436,7 +447,7 @@ namespace WorldRefill
                             break;
                         case 6:
                             minY = Main.rockLayer * (3 / 2);
-                            maxY = Main.maxTilesY;
+                            maxY = MainExt.UnderworldLayer;
                             minFrequency = 4;
                             minSpread = 4;
                             maxFrequency = 7;
@@ -444,7 +455,7 @@ namespace WorldRefill
                             break;
                         case 7:
                             minY = Main.rockLayer * (5 / 3);
-                            maxY = Main.maxTilesY;
+                            maxY = MainExt.UnderworldLayer;
                             minFrequency = 3;
                             minSpread = 3;
                             maxFrequency = 5;
@@ -452,7 +463,7 @@ namespace WorldRefill
                             break;
                         case 8:
                             minY = Main.rockLayer;
-                            maxY = Main.maxTilesY;
+                            maxY = MainExt.UnderworldLayer;
                             minFrequency = 5;
                             minSpread = 5;
                             maxFrequency = 9;
@@ -465,6 +476,8 @@ namespace WorldRefill
                             maxFrequency = 9;
                             maxSpread = 9;
                             break;
+
+
                     }
 
                     //Gets random number based on minimum spawn point to maximum depth of map
@@ -473,6 +486,8 @@ namespace WorldRefill
                     if (TileValidation.TileOreValidation(Main.tile[X, Y], oreID))
                     {
                         WorldGen.OreRunner(X, Y, (double)WorldGen.genRand.Next(minSpread, maxSpread), WorldGen.genRand.Next(minFrequency, maxFrequency), oreID);
+
+
 
                         if (Main.tile[X, Y].type == oreID)
                         {
@@ -524,7 +539,7 @@ namespace WorldRefill
                         maxSpread = 6;
                         break;
                     case 3:
-                        maxY = Main.maxTilesY;
+                        maxY = MainExt.UnderworldLayer;
                         minY = (3 / 2) * Main.rockLayer;
                         minFrequency = 2;
                         minSpread = 2;
@@ -533,7 +548,7 @@ namespace WorldRefill
                         break;
                     case 4:
                         maxY = Main.maxTilesY - 1;
-                        minY = Main.maxTilesY + 20;
+                        minY = MainExt.UnderworldLayer + 20;
                         minFrequency = 4;
                         minSpread = 4;
                         maxFrequency = 9;
@@ -549,7 +564,7 @@ namespace WorldRefill
                         break;
                     case 6:
                         minY = Main.rockLayer * (3 / 2);
-                        maxY = Main.maxTilesY;
+                        maxY = MainExt.UnderworldLayer;
                         minFrequency = 4;
                         minSpread = 4;
                         maxFrequency = 7;
@@ -557,7 +572,7 @@ namespace WorldRefill
                         break;
                     case 7:
                         minY = Main.rockLayer * (5 / 3);
-                        maxY = Main.maxTilesY;
+                        maxY = MainExt.UnderworldLayer;
                         minFrequency = 3;
                         minSpread = 3;
                         maxFrequency = 5;
@@ -565,7 +580,7 @@ namespace WorldRefill
                         break;
                     case 8:
                         minY = Main.rockLayer;
-                        maxY = Main.maxTilesY;
+                        maxY = MainExt.UnderworldLayer;
                         minFrequency = 5;
                         minSpread = 5;
                         maxFrequency = 9;
@@ -606,10 +621,11 @@ namespace WorldRefill
             WorldRefill.isTaskRunning = true;
             int realcount = 0;
             return Task.Run(() => {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     int tryX = WorldGen.genRand.Next(20, Main.maxTilesX - 20);
-                    int tryY = WorldGen.genRand.Next(50, Main.maxTilesY);
+                    int tryY = WorldGen.genRand.Next(50, MainExt.UnderworldLayer);
                     int direction = WorldGen.genRand.Next(2);
                     if (direction == 0)
                     {
@@ -623,9 +639,9 @@ namespace WorldRefill
                     while (!SpiderWalls.Contains(Main.tile[tryX, tryY].wall))
                     {
                         tryY++;
-                        if (tryY >= Main.maxTilesY) break;
+                        if (tryY >= MainExt.UnderworldLayer) break;
                     }
-                    if ((tryY < Main.maxTilesY) && (tryY > 50))
+                    if ((tryY < MainExt.UnderworldLayer) && (tryY > 50))
                     {
 
                         WorldGen.TileRunner(tryX, tryY, (double)WorldGen.genRand.Next(4, 11), WorldGen.genRand.Next(2, 4), 51, true, (float)direction, -1f, false, false);
@@ -643,23 +659,23 @@ namespace WorldRefill
         public static Task AsyncGenerateTrees()
         {
             WorldRefill.isTaskRunning = true;
-            int count = 0;
-            for (int counter = 0; counter < Main.maxTilesX * 0.003; counter++)
-            {
-                int tryX = WorldGen.genRand.Next(50, Main.maxTilesX - 50);
-                int tryY = WorldGen.genRand.Next(25, 50);
-                for (var tick = tryX - tryY; tick < tryX + tryY; tick++)
-                {
+            //int count = 0;
+            //for (int counter = 0; counter < Main.maxTilesX * 0.003; counter++)
+            //{
+            //    int tryX = WorldGen.genRand.Next(50, Main.maxTilesX - 50);
+            //    int tryY = WorldGen.genRand.Next(25, 50);
+            //    for (var tick = tryX - tryY; tick < tryX + tryY; tick++)
+            //    {
 
-                    for (int offset = 20; offset < Main.worldSurface; offset++)
-                    {
-                        WorldGen.GrowEpicTree(tick, offset);
-                        count++;
-                    }
-                }
-
-            }
-            return Task.Run(() => WorldGen.AddTrees()).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
+            //        for (int offset = 20; offset < Main.worldSurface; offset++)
+            //        {
+            //            WorldGen.GrowEpicTree(tick, offset);
+            //            count++;
+            //        }
+            //    }
+            //}
+            WorldGen.AddTrees();
+            return Task.Run(() => { WorldRefill.isTaskRunning = false; });
 
         }
         public static Task AsyncGenerateShrooms(short amount, int maxtries = Config.GenerationMaxTries)
@@ -668,10 +684,11 @@ namespace WorldRefill
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     int tryX = WorldGen.genRand.Next(200, Main.maxTilesX - 200);
-                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface - 150, Main.maxTilesY);
+                    int tryY = WorldGen.genRand.Next((int)Main.worldSurface - 150, MainExt.UnderworldLayer);
 
                     ITile blockbelow = Main.tile[tryX, tryY + 1];
                     List<ushort> shroom = TileValidation.GetShroom(blockbelow);
@@ -699,18 +716,18 @@ namespace WorldRefill
             }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
 
         }
-        public static Task AsyncGenerateHellevator(int posX, int posY, List<ushort> trees)
+        public static Task AsyncGenerateHellevator(int posX, int posY, byte wall, List<ushort> trees)
         {
             Task<int> bottom()
             {
                 int hell;
                 int xtile;
-                for (hell = Main.maxTilesY + 10; hell <= Main.maxTilesY - 100; hell++)
+                for (hell = MainExt.UnderworldLayer + 10; hell <= Main.maxTilesY - 100; hell++)
                 {
                     xtile = posX;
                     Parallel.For(posX, posX + 8, (cwidth, state) =>
                     {
-                        if (Main.tile[cwidth, hell].active())
+                        if (Main.tile[cwidth, hell].active() && !Main.tile[cwidth, hell].lava())
                         {
                             state.Stop();
 
@@ -721,6 +738,24 @@ namespace WorldRefill
                     });
                     if (!Main.tile[xtile, hell].active()) break;
                 }
+                //for (hell = Main.maxTilesY - 10; hell >= Main.maxTilesY - 170; hell--)
+                //{
+                //    xtile = posX;
+                //    Parallel.For(posX, posX + 8, (cwidth, state) =>
+                //    {
+                //        if (Main.tile[cwidth, hell] != null && Main.tile[cwidth, hell].active())
+                //        {
+                //            state.Stop();
+
+                //            xtile = cwidth;
+
+                //            return;
+                //        }
+                //    });
+                //    if (!Main.tile[xtile, hell].active()) break;
+                //}
+                //if (hell >= Main.maxTilesY - 120)
+                //    hell = Main.maxTilesY - 150;
                 return Task.FromResult(hell);
             };
 
@@ -737,32 +772,45 @@ namespace WorldRefill
             hellevator.TryGetValue("Bottom", out int Bottom);
 
             int count = 0;
-            ushort tile = TileID.ObsidianBrick;
-            byte wall = WallID.StarlitHeavenWallpaper;
-            return Task.Run(() =>
+            ushort tile = TileID.Bubble;
+            //byte wall = (byte)WorldGen.genRand.Next(4, 224);
+
+            int cx;
+            for (cx = Xstart; cx < Width + Xstart; cx++)
             {
-                Parallel.For(Xstart, Xstart + Width, (lcx) =>
+                int cy;
+                for (cy = Ystart; cy < Bottom; cy++)
                 {
-                    int cx = (int)lcx;
-                    Parallel.For(Ystart, Bottom, (lcy) =>
+                    if (Main.tile[cx, cy] != null && Main.tile[cx, cy].liquid != 0)
                     {
-                        int cy = (int)lcy;
-                        if ((lcx == Xstart) || (lcx == Width + Xstart - 1))
+                        //Console.WriteLine("Removing Liquids...");
+                        Main.tile[cx, cy].liquid = 0;
+                        Main.tile[cx, cy].liquidType(0);
+                    }
+                    if ((cx == Xstart) || (cx == Width + Xstart - 1))
+                    {
+                        Main.tile[cx, cy].type = tile;
+                        Main.tile[cx, cy].active(true);
+                        Main.tile[cx, cy].slope(0);
+                        Main.tile[cx, cy].halfBrick(false);
+                    }
+                    else
+                    {
+                        if (trees.Contains(Main.tile[cx, cy - 1].type))
                         {
-                            Main.tile[lcx, cy].type = tile;
-                            Main.tile[cx, cy].active(true);
-                            Main.tile[cx, cy].slope(0);
-                            Main.tile[cx, cy].halfBrick(false);
+                            WorldGen.KillTile(cx, cy - 1);
+                            count++;
                         }
-                        else
+                        if (Main.tile[cx, cy] != null)
                         {
-                            if (trees.Contains(Main.tile[cx, cy - 1].type))
-                            {
-                                WorldGen.KillTile(cx, cy - 1);
-                                count++;
-                            }
                             WorldGen.KillTile(cx, cy, false, false, true);
                             count++;
+                            if (Main.tile[cx, cy].liquid != 0)
+                            {
+                                //Console.WriteLine("Wtf still have liquids?");
+                                Main.tile[cx, cy].liquid = 0;
+                                Main.tile[cx, cy].liquidType(0);
+                            }
                             Main.tile[cx, cy].wall = wall;
                             if ((cx == Xstart + 1 || cx == Width + Xstart - 2) && cy != Ystart)
                             {
@@ -772,29 +820,100 @@ namespace WorldRefill
                                 Main.tile[cx, cy].halfBrick(false);
                             }
                         }
-                    });
-                    WorldGen.PlaceTile(cx, Ystart, TileID.Platforms, false, false, -1, 13);
+                    }
+                }
+                WorldGen.PlaceTile(cx, Ystart, TileID.Platforms, false, false, -1, 13);
+            }
 
-                });
-            }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
+            //Parallel.For(Xstart, Xstart + Width, (cx) =>
+            //{
+            //    Parallel.For(Ystart, Bottom, (cy) =>
+            //    {
+            //        if ((cx == Xstart) || (cx == Width + Xstart - 1))
+            //        {
+            //            Main.tile[cx, cy].type = tile;
+            //            Main.tile[cx, cy].active(true);
+            //            Main.tile[cx, cy].slope(0);
+            //            Main.tile[cx, cy].halfBrick(false);
+            //        }
+            //        else
+            //        {
+            //            if (trees.Contains(Main.tile[cx, cy - 1].type))
+            //            {
+            //                WorldGen.KillTile(cx, cy - 1);
+            //                count++;
+            //            }
+            //            if (Main.tile[cx, cy] != null)
+            //            {
+            //                WorldGen.KillTile(cx, cy, false, false, true);
+            //                count++;
+            //                Main.tile[cx, cy].wall = wall;
+            //                if ((cx == Xstart + 1 || cx == Width + Xstart - 2) && cy != Ystart)
+            //                {
+            //                    Main.tile[cx, cy].type = TileID.WebRope;
+            //                    Main.tile[cx, cy].active(true);
+            //                    Main.tile[cx, cy].slope(0);
+            //                    Main.tile[cx, cy].halfBrick(false);
+            //                }
+            //            }
+
+            //        }
+            //    });
+            //WorldGen.PlaceTile(cx, Ystart, TileID.Platforms, false, false, -1, 13);
+            //});
+            return Task.Run(() => { WorldRefill.isTaskRunning = false; });
         }
         public static Task AsyncGenerateIsland(int island, int posX, int posY)
         {
             WorldRefill.isTaskRunning = true;
-            //switch (island)
-            //{
-            //    case 0:
+            WorldRefill.realcount = 1;
+            switch (island)
+            {
+                case 0:
+                    WorldGen.FloatingIsland(posX, posY);
+                    for (int x = posX - 20; x < posX + 20; x++)
+                    {
+                        int cloudsurface()
+                        {
+                            int cY = posY;
+                            while (Main.tile[x, cY].active())
+                            {
+                                cY--;
+                            }
+                            cY++;
+                            return cY;
+
+                        };
+                        WorldGen.SpreadGrassDirect(posX, cloudsurface());
+
+                    }
+                    WorldGen.IslandHouse(posX, posY - 6/*, WorldGen.floatingIslandStyle[WorldGen.genRand.Next(0, WorldGen.floatingIslandStyle.Count() - 1)]*/);
+                    break;
+                case 3:
+                    WorldGen.CloudLake(posX, posY);
+                    break;
+                case 4:
                     WorldGen.CloudIsland(posX, posY);
-                    WorldGen.SpreadGrass(posX, posY - 7);
-                    //break;
-                //case 1:
-                //    WorldGen.DesertCloudIsland(posX, posY);
-                //    break;
-                //case 2:
-                //    WorldGen.SnowCloudIsland(posX, posY);
-                //    break;
-            //}
-            return Task.Run(() => WorldGen.IslandHouse(posX, posY - 6/*, WorldGen.floatingIslandStyle[WorldGen.genRand.Next(0, WorldGen.floatingIslandStyle.Count() - 1)]*/)).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
+                    for (int x = posX - 20; x < posX + 20; x++)
+                    {
+                        int cloudsurface()
+                        {
+                            int cY = posY;
+                            while (Main.tile[x, cY].active())
+                            {
+                                cY--;
+                            }
+                            cY++;
+                            return cY;
+
+                        };
+                        WorldGen.SpreadGrassDirect(posX, cloudsurface());
+
+                    }
+                    WorldGen.IslandHouse(posX, posY - 6/*, WorldGen.floatingIslandStyle[WorldGen.genRand.Next(0, WorldGen.floatingIslandStyle.Count() - 1)]*/);
+                    break;
+            }
+            return Task.Run(() => { WorldRefill.isTaskRunning = false; });
         }
         public static Task AsyncGenerateDungeon(int posX, int posY)
         {

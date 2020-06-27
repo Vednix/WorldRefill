@@ -29,6 +29,7 @@ using System.Threading;
 using System.Net;
 using System.IO;
 using System.Text;
+using WorldRefill.Ext;
 
 namespace WorldRefill
 {
@@ -123,13 +124,13 @@ namespace WorldRefill
                 "altars",
                 "cavetraps",
                 "templetraps",
-                "statuetraps",
+                //"statuetraps",
                 //"lavatraps",
                 //"sandtraps",
                 "statues",
                 "ores",
                 "webs",
-                "shrooms"
+                "mushrooms"
             };
         readonly IReadOnlyList<string> structslist = new List<string>
         {
@@ -230,7 +231,6 @@ namespace WorldRefill
             //realcount = actual amount of objects generated
 
             List<string> lines;
-
             #region Case Options
             switch (args.Parameters[0].ToLowerInvariant())
             {
@@ -332,17 +332,17 @@ namespace WorldRefill
                     break;
                 #endregion
                 #region Statue Traps
-                case "statuetraps":
-                    if (!isTaskRunning)
-                    {
-                        await Regen.AsyncGenerateStatuetraps(amount);
-                        //Notify user on success
-                        args.Player.SendSuccessMessage($"[[c/FFFFFF:{Name}]] Generated and hid {realcount} Randomized Statue Traps.");
-                        TSPlayer.All.SendMessage($"[[c/FFFFFF:{Name}]] [c/BCFF00:{args.Player.Name}] has generated and hid [c/BCFF00:{realcount}] Randomized Statue Traps.", 71, 8, 185);
-                        InformPlayers();
-                    }
-                    else args.Player.SendErrorMessage($"[[c/FFFFFF:{Name}]] Another Generation is in Progress, Please try again later!");
-                    break;
+                //case "statuetraps":
+                //    if (!isTaskRunning)
+                //    {
+                //        await Regen.AsyncGenerateStatuetraps(amount);
+                //        //Notify user on success
+                //        args.Player.SendSuccessMessage($"[[c/FFFFFF:{Name}]] Generated and hid {realcount} Randomized Statue Traps.");
+                //        TSPlayer.All.SendMessage($"[[c/FFFFFF:{Name}]] [c/BCFF00:{args.Player.Name}] has generated and hid [c/BCFF00:{realcount}] Randomized Statue Traps.", 71, 8, 185);
+                //        InformPlayers();
+                //    }
+                //    else args.Player.SendErrorMessage($"[[c/FFFFFF:{Name}]] Another Generation is in Progress, Please try again later!");
+                //    break;
                 #endregion
                 #region Lava Traps
                 //case "lavatraps":
@@ -527,36 +527,61 @@ namespace WorldRefill
                         new ushort[] {TileID.Adamantite, TileID.Titanium},
                         new ushort[] {TileID.Chlorophyte}
                     };
-                        Dictionary<string, ushort> ores = new Dictionary<string, ushort>
-                        {
-                            ["cobalt"] = TileID.Cobalt,
-                            ["mythril"] = TileID.Mythril,
-                            ["copper"] = TileID.Copper,
-                            ["iron"] = TileID.Iron,
-                            ["silver"] = TileID.Silver,
-                            ["gold"] = TileID.Gold,
-                            ["demonite"] = TileID.Demonite,
-                            ["sapphire"] = TileID.Sapphire,
-                            ["ruby"] = TileID.Ruby,
-                            ["emerald"] = TileID.Emerald,
-                            ["topaz"] = TileID.Topaz,
-                            ["amethyst"] = TileID.Amethyst,
-                            ["diamond"] = TileID.Diamond,
-                            ["adamantite"] = TileID.Adamantite,
-                            ["hellstone"] = TileID.Hellstone,
-                            ["tin"] = TileID.Tin,
-                            ["lead"] = TileID.Lead,
-                            ["tungsten"] = TileID.Tungsten,
-                            ["platinum"] = TileID.Platinum,
-                            ["crimtane"] = TileID.Crimtane,
-                            ["palladium"] = TileID.Palladium,
-                            ["orichalcum"] = TileID.Orichalcum,
-                            ["titanium"] = TileID.Titanium,
-                            ["chlorophyte"] = TileID.Chlorophyte,
-                            ["stone"] = TileID.Stone,
-                            ["sand"] = TileID.Sand,
-                            ["silt"] = TileID.Silt,
-                        };
+
+                        Dictionary<string, ushort> ores = new Dictionary<string, ushort> { };
+                        if (Main.hardMode)
+                            ores = new Dictionary<string, ushort>
+                            {
+                                ["cobalt"] = TileID.Cobalt,
+                                ["mythril"] = TileID.Mythril,
+                                ["copper"] = TileID.Copper,
+                                ["iron"] = TileID.Iron,
+                                ["silver"] = TileID.Silver,
+                                ["gold"] = TileID.Gold,
+                                ["demonite"] = TileID.Demonite,
+                                ["sapphire"] = TileID.Sapphire,
+                                ["ruby"] = TileID.Ruby,
+                                ["emerald"] = TileID.Emerald,
+                                ["topaz"] = TileID.Topaz,
+                                ["amethyst"] = TileID.Amethyst,
+                                ["diamond"] = TileID.Diamond,
+                                ["adamantite"] = TileID.Adamantite,
+                                ["hellstone"] = TileID.Hellstone,
+                                ["tin"] = TileID.Tin,
+                                ["lead"] = TileID.Lead,
+                                ["tungsten"] = TileID.Tungsten,
+                                ["platinum"] = TileID.Platinum,
+                                ["crimtane"] = TileID.Crimtane,
+                                ["palladium"] = TileID.Palladium,
+                                ["orichalcum"] = TileID.Orichalcum,
+                                ["titanium"] = TileID.Titanium,
+                                ["chlorophyte"] = TileID.Chlorophyte,
+                                ["stone"] = TileID.Stone,
+                                //["sand"] = TileID.Sand,
+                                //["silt"] = TileID.Silt,
+                            };
+                        else
+                            ores = new Dictionary<string, ushort>
+                            {
+                                ["copper"] = TileID.Copper,
+                                ["iron"] = TileID.Iron,
+                                ["silver"] = TileID.Silver,
+                                ["gold"] = TileID.Gold,
+                                ["demonite"] = TileID.Demonite,
+                                ["sapphire"] = TileID.Sapphire,
+                                ["ruby"] = TileID.Ruby,
+                                ["emerald"] = TileID.Emerald,
+                                ["topaz"] = TileID.Topaz,
+                                ["amethyst"] = TileID.Amethyst,
+                                ["diamond"] = TileID.Diamond,
+                                ["hellstone"] = TileID.Hellstone,
+                                ["tin"] = TileID.Tin,
+                                ["lead"] = TileID.Lead,
+                                ["tungsten"] = TileID.Tungsten,
+                                ["platinum"] = TileID.Platinum,
+                                ["crimtane"] = TileID.Crimtane,
+                                ["stone"] = TileID.Stone,
+                            };
                         if (amount > 1000) args.Player.SendInfoMessage($"[[c/FFFFFF:{Name}]] This one may take a while to load. Please wait...");
                         if (args.Parameters.Count == 2)
                         {
@@ -720,7 +745,7 @@ namespace WorldRefill
                     {
                         tryX = args.Player.TileX;
                         tryY = args.Player.TileY;
-                        if (tryY > Main.worldSurface && tryY < Main.maxTilesY && TileValidation.inWorld(tryX, tryY))
+                        if (tryY > Main.worldSurface && tryY < MainExt.UnderworldLayer && TileValidation.inWorld(tryX, tryY))
                         {
                             await Regen.AsyncGenerateMinehouse(tryX, tryY);
                             args.Player.SendSuccessMessage($"[[c/FFFFFF:{Name}]] A Minehouse was Successfully Generated.");
@@ -740,6 +765,10 @@ namespace WorldRefill
                 case "hellevator":
                     if (!isTaskRunning)
                     {
+
+
+
+
                         List<ushort> trees = new List<ushort>
                     {
                         TileID.Trees,
@@ -755,12 +784,27 @@ namespace WorldRefill
                         TileID.MushroomTrees,
                         TileID.PalmTree
                     };
+                        List<byte> wallWhitelist = new List<byte> { 1, 4, 5, 6, 10, 11, 12, 16, 17, 18, 19, 20,
+                            21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43,
+                            44, 45, 46, 47, 60, 66, 67, 68, 72, 73, 74, 75, 76, 77, 78, 82, 84, 85, 88, 89, 90,
+                            91, 92, 93, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114,
+                            115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131,
+                            132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148,
+                            149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165,
+                            166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 179, 181, 182, 183, 184,
+                            186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202,
+                            203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219,
+                            220, 221, 222, 223, 224 };
+                        byte wall = 0;
+                        if (args.Parameters.Count != 2 || !byte.TryParse(args.Parameters[1], out wall) || !wallWhitelist.Contains(wall))
+                            wall = wallWhitelist[WorldGen.genRand.Next(wallWhitelist.Count)];
+
                         tryX = args.Player.TileX;
                         tryY = args.Player.TileY;
 
                         if (TileValidation.onSurface(tryX, tryY) && TileValidation.inWorld(tryX, tryY))
                         {
-                            await (Regen.AsyncGenerateHellevator(tryX, tryY, trees));
+                            await (Regen.AsyncGenerateHellevator(tryX, tryY, wall, trees));
                             InformPlayers();
                             args.Player.SendSuccessMessage($"[[c/FFFFFF:{Name}]] A Hellevator was Successfully Generated.");
                             TSPlayer.All.SendMessage($"[[c/FFFFFF:{Name}]] [c/BCFF00:{args.Player.Name}] has generated a Hellevator at X: [c/BCFF00:{tryX}], Y: [c/BCFF00:{tryY}] !", 71, 8, 185);
@@ -825,6 +869,9 @@ namespace WorldRefill
                             ["floating"] = 0,
                             //["desert"] = 1,
                             //["snow"] = 2,
+                            ["lake"] = 3,
+                            ["cloud"] = 4,
+
                         };
                         string selisland = args.Parameters[1].ToLowerInvariant();
                         List<string> islands = IslandList.Keys.ToList();
@@ -899,18 +946,6 @@ namespace WorldRefill
         //    args.Player.SendSuccessMessage("Attempted to generate an Island House here.");
         //    InformPlayers();
         //}
-        #endregion
-        #region GenFloatingIsland Command
-        private void DoIsland(CommandArgs args) //Not in use?
-        {
-            //tryX = args.Player.TileX;
-            //tryY = args.Player.TileY;
-            //if (tryY <= 50)
-            //    tryY = 51;
-            //WorldGen.CloudIsland(tryX, tryY);
-            //args.Player.SendSuccessMessage("Attempted to generate a floating island at your position");
-            //InformPlayers();
-        }
         #endregion
         #region GenChests Command
         private void DoChests(CommandArgs args)
@@ -1087,7 +1122,7 @@ namespace WorldRefill
             {
                 if ((person != null) && (person.Active))
                 {
-                    for (int i = 0; i < 255; i++)
+                    for (int i = 0; i < 17; i++)
                     {
                         for (int j = 0; j < Main.maxSectionsX; j++)
                         {
