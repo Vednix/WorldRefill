@@ -42,8 +42,8 @@ namespace WorldRefill
             {
 
                 violation = false;
-            }//block stand check
-
+            }
+            //block stand check
             Parallel.For(Y, 0, (i) =>
             {
                 if (surfacetiles.Contains(Main.tile[X, i].type))
@@ -102,8 +102,6 @@ namespace WorldRefill
                 return true;
             else
                 return false;
-
-
         }
         public static bool StatueTileValidation(int X, int Y)
         {
@@ -130,7 +128,6 @@ namespace WorldRefill
                 if (tiers.Contains(ore)) return i;
                 i++;
             }
-
             return 0;
         }
 

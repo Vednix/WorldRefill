@@ -43,7 +43,7 @@ namespace WorldRefill
         #region Plugin Info
         public override Version Version
         {
-            get { return new Version(2, 1, 0); }
+            get { return new Version(2, 1, 1); }
         }
         public override string Name
         {
