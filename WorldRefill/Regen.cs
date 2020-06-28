@@ -25,13 +25,14 @@ namespace WorldRefill
             if (WorldGen.genRand == null)
                 WorldGen.genRand = new Random();
         }
-        
+
         public static Task AsyncGenLifeCrystals(short amount, int maxtries = Config.GenerationMaxTries)
         {
             WorldRefill.isTaskRunning = true;
             int realcount = 0;
             return Task.Run(() =>
             {
+                TryInitWorldGen();
                 for (int trycount = 0; trycount <= maxtries; trycount++)
                 {
                     if (WorldGen.AddLifeCrystal(WorldGen.genRand.Next(1, Main.maxTilesX), WorldGen.genRand.Next((int)(Main.rockLayer), (int)(MainExt.UnderworldLayer + 100))))
@@ -44,7 +45,7 @@ namespace WorldRefill
                 }
                 WorldRefill.realcount = realcount;
             }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
-            }
+        }
         public static Task AsyncGenPots(short amount, int maxtries = Config.GenerationMaxTries)
         {
             WorldRefill.isTaskRunning = true;
@@ -98,7 +99,7 @@ namespace WorldRefill
                 }
                 WorldRefill.realcount = realcount;
             }).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
-            }
+        }
         public static Task AsyncGenerateOrbs(short amount, int maxtries = Config.GenerationMaxTries)
         {
             WorldRefill.isTaskRunning = true;
@@ -918,25 +919,26 @@ namespace WorldRefill
         public static Task AsyncGenerateDungeon(int posX, int posY)
         {
             WorldRefill.isTaskRunning = true;
-            return Task.Run(() => WorldGen.MakeDungeon(posX, posY)).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
+            WorldGen.MakeDungeon(posX, posY);
+            return Task.Run(() => { WorldRefill.isTaskRunning = false; });
         }
         public static Task<bool> AsyncGeneratePyramid(int posX, int posY)
         {
             WorldRefill.isTaskRunning = true;
-            Task.Run(() => WorldGen.Pyramid(posX, posY)).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
+            //WorldGen.Pyramid(posX, posY);
             return Task.FromResult(WorldGen.Pyramid(posX, posY));
         }
         public static Task AsyncGenerateMinehouse(int posX, int posY)
         {
             WorldRefill.isTaskRunning = true;
-            return Task.Run(() => WorldGen.MineHouse(posX, posY)).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
+            WorldGen.MineHouse(posX, posY);
+            return Task.Run(() => { WorldRefill.isTaskRunning = false; });
         }
         public static Task AsyncGenerateWorld()
         {
             WorldRefill.isTaskRunning = true;
             WorldGen.clearWorld();
             //return Task.Run(() => WorldGen.generateWorld(WorldGen._lastSeed)).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
-            //Take a look later
             return Task.Run(() => WorldGen.generateWorld()).ContinueWith((d) => { WorldRefill.isTaskRunning = false; });
         }
     }
